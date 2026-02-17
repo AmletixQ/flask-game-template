@@ -65,19 +65,19 @@ def login():
 
 @app.route("/logout")
 def logout():
-    session.pop("user_id")
-    session.pop("user_points")
+    session.pop("user_id", None)
+    session.pop("user_points", None)
 
     return render_template("index.html")
 
 
 @app.route("/points", methods=["GET", "POST"])
 def points():
-    action = request.form.get("action")
+    action = request.args.get("action")
 
-    if action == "get":
+    if request.method == "GET":
         session["user_points"] = get_points()
-    elif action == "add":
+    elif request.method == "POST":
         points = int(request.form.get("points", 0))
         session["user_points"] = post_points(points)
 

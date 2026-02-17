@@ -18,4 +18,7 @@ def get_points() -> int:
 
     data = response.json()
 
-    return data
+    if isinstance(data, dict):
+        return data.get("points");
+
+    return None

@@ -8,9 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <style>
-      @import "tailwindcss";
-
-      @layer base {
         button,
         .link-button {
           width: 100%;
@@ -29,7 +26,6 @@
           background-color: #f0f0f0;
           color: #333;
         }
-      }
     </style>
   </head>
   <body class="pt-4 md:pt-8 h-screen px-2 md:px-4 lg:px-8">
@@ -74,7 +70,7 @@
         </form>
         <a
           href="/logout"
-          class="link-button text-center bg-red-500 text-white hover:bg-red-600 border-none"
+          class="link-button text-center bg-red-500! text-white hover:bg-red-600! hover:text-white! border-none"
         >
           Выйти
         </a>
@@ -87,7 +83,8 @@
         Баллы пользователя: {{ points }}
       </h2>
     </div>
-    {% endif %} {% if error %}
+    {% endif %}
+    {% if error %}
     <div class="mt-4">
       <h2 class="text-red-500 text-center">{{ error["message"] }}</h2>
     </div>
