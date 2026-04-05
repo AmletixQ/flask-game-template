@@ -2,9 +2,10 @@ import requests
 
 from flask import Flask, redirect, render_template, request, session, url_for, jsonify
 
-from constants import API_URL, APP_SECRET_KEY
+from constants import APP_SECRET_KEY
 from utils.get_points import get_points
 from utils.post_points import post_points
+from utils.login import login as API_login
 
 
 app = Flask(__name__)
@@ -15,8 +16,9 @@ app.secret_key = APP_SECRET_KEY
 def index():
     user_id = session.get("user_id", None)
     user_points = session.get("user_points", None)
+    error = session["error"]
 
-    return render_template("index.html", user_id=user_id, points=user_points)
+    return render_template("index.html", user_id=user_id, points=user_points, error=error)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -30,28 +32,9 @@ def login():
     if not (email and password):
         return render_template("login.html", error={"message": "ERROR!!!"})
 
-    user_data = {"email": email, "password": password}
 
     try:
-        response = requests.post(f"{API_URL}/account/login", json=user_data)
-        response.raise_for_status()
-
-        data = response.json()
-        user_id = None
-
-        if isinstance(data, str):
-            user_id = data
-        elif isinstance(data, dict):
-            user_id = data.get("userId")
-
-        if not user_id:
-            return render_template(
-                "login.html",
-                error={"message": "Не удалось получить ID пользователя"},
-            )
-
-        session["user_id"] = user_id
-
+        API_login(email, password);
     except requests.exceptions.RequestException as e:
         print(f"Ошибка API login: {e}")
         return render_template("login.html", error={"message": "ERROR!!!"})
@@ -73,15 +56,17 @@ def logout():
 
 @app.route("/points", methods=["GET", "POST"])
 def points():
-    action = request.args.get("action")
-
     if request.method == "GET":
         session["user_points"] = get_points()
     elif request.method == "POST":
-        points = int(request.form.get("points", 0))
-        session["user_points"] = post_points(points)
-
+        try:
+            points = int(request.form.get("points", 0))
+            session["user_points"] = post_points(points)
+        except Exception as e:
+            session["error"] = e
+        
     return redirect(url_for("index"))
+
 
 
 if __name__ == "__main__":
