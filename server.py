@@ -14,7 +14,7 @@ app.secret_key = APP_SECRET_KEY
 def index():
     user_id = session.get("user_id", None)
     user_points = session.get("user_points", None)
-    error = session["error"]
+    error = session.get("error")
 
     return render_template(
         "index.html", user_id=user_id, points=user_points, error=error
