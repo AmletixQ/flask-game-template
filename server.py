@@ -3,10 +3,8 @@ import requests
 from flask import Flask, redirect, render_template, request, session, url_for, jsonify
 
 from constants import APP_SECRET_KEY
-from utils.get_points import get_points
-from utils.post_points import post_points
-from utils.login import login as API_login
 
+from api_rudzyng import login as API_login, get_points, post_points
 
 app = Flask(__name__)
 app.secret_key = APP_SECRET_KEY
@@ -18,7 +16,9 @@ def index():
     user_points = session.get("user_points", None)
     error = session["error"]
 
-    return render_template("index.html", user_id=user_id, points=user_points, error=error)
+    return render_template(
+        "index.html", user_id=user_id, points=user_points, error=error
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -32,9 +32,8 @@ def login():
     if not (email and password):
         return render_template("login.html", error={"message": "ERROR!!!"})
 
-
     try:
-        API_login(email, password);
+        API_login(email, password)
     except requests.exceptions.RequestException as e:
         print(f"Ошибка API login: {e}")
         return render_template("login.html", error={"message": "ERROR!!!"})
@@ -64,9 +63,8 @@ def points():
             session["user_points"] = post_points(points)
         except Exception as e:
             session["error"] = e
-        
-    return redirect(url_for("index"))
 
+    return redirect(url_for("index"))
 
 
 if __name__ == "__main__":
